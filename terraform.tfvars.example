@@ -1,0 +1,6 @@
+# Copia este archivo como terraform.tfvars (ignorado por Git) solo si necesitas cambiar los valores
+# por defecto. El token de Cloudflare NO va aquí: usa la variable de entorno CLOUDFLARE_API_TOKEN.
+
+# zone_name         = "vfernandezg.dev"
+# landing_subdomain = "healthybites"
+# github_pages_host = "vfernandezg-dev.github.io"

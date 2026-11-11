@@ -1,0 +1,30 @@
+name: Terraform
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Formato y validación
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.8
+
+      - name: Formato
+        run: terraform fmt -check -recursive
+
+      # Sin backend ni credenciales: solo descarga providers (verificando el lock) y valida.
+      - name: Init
+        run: terraform init -backend=false -input=false -lockfile=readonly
+
+      - name: Validación
+        run: terraform validate

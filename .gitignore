@@ -1,0 +1,28 @@
+# Directorio local de providers y módulos
+.terraform/
+
+# State: contiene IDs y metadatos de la infraestructura. Nunca se versiona.
+*.tfstate
+*.tfstate.*
+
+# Valores locales (pueden incluir secretos). Se versiona solo el ejemplo.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Planes guardados y logs
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+
+# Overrides locales
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Entorno local
+.env
+.terraformrc
+terraform.rc
