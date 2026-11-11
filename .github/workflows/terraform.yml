@@ -8,23 +8,56 @@ on:
 permissions:
   contents: read
 
+env:
+  TERRAFORM_VERSION: 1.15.8
+
 jobs:
-  validate:
-    name: Formato y validación
+  format:
+    name: Formato
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: 1.15.8
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
-      - name: Formato
+      - name: terraform fmt
         run: terraform fmt -check -recursive
 
-      # Sin backend ni credenciales: solo descarga providers (verificando el lock) y valida.
-      - name: Init
+  discover:
+    name: Detectar stacks
+    runs-on: ubuntu-latest
+    outputs:
+      stacks: ${{ steps.list.outputs.stacks }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Cada carpeta dentro de stacks/ es una stack independiente: se valida sin tocar este archivo.
+      - id: list
+        run: echo "stacks=$(find stacks -mindepth 1 -maxdepth 1 -type d | sort | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
+  validate:
+    name: Validar ${{ matrix.stack }}
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        stack: ${{ fromJSON(needs.discover.outputs.stacks) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.stack }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      # Sin backend ni credenciales: descarga providers verificando el lockfile y valida.
+      - name: terraform init
         run: terraform init -backend=false -input=false -lockfile=readonly
 
-      - name: Validación
+      - name: terraform validate
         run: terraform validate

@@ -1,5 +1,5 @@
 variable "zone_name" {
-  description = "Dominio raíz administrado en Cloudflare. Este proyecto solo lo lee: no gestiona la zona completa."
+  description = "Dominio raíz en Cloudflare. Esta stack solo lo lee: la zona se configura en la stack \"domain\"."
   type        = string
   default     = "vfernandezg.dev"
 }
