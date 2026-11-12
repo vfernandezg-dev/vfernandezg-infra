@@ -73,16 +73,21 @@ variable "r2_secret_access_key" {
   sensitive   = true
 }
 
-variable "mail_username" {
-  description = "Cuenta SMTP (Gmail) con la que la API envía los correos."
+variable "resend_smtp_key" {
+  description = "API key de Resend solo para envío, limitada al dominio: es la contraseña SMTP de la API."
   type        = string
   sensitive   = true
 }
 
-variable "mail_password" {
-  description = "Contraseña de aplicación de la cuenta SMTP."
+variable "resend_dkim" {
+  description = "Valor del registro DKIM (resend._domainkey) que da Resend al añadir el dominio. Es una clave pública."
   type        = string
-  sensitive   = true
+}
+
+variable "mail_from" {
+  description = "Remitente de los correos de la API (dirección del dominio verificado en Resend)."
+  type        = string
+  default     = "Healthy Bites <projects@vfernandezg.dev>"
 }
 
 variable "paypal_client_id" {

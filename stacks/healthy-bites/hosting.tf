@@ -81,8 +81,11 @@ resource "vercel_project_environment_variables" "api" {
       CORS_APP_ORIGINS     = local.app_url
       CORS_LANDING_ORIGINS = "https://${var.landing_subdomain}.${var.zone_name}"
       CONTACT_RECIPIENT    = var.contact_recipient
-      MAIL_USERNAME        = var.mail_username
-      MAIL_PASSWORD        = var.mail_password
+      MAIL_HOST            = "smtp.resend.com"
+      MAIL_PORT            = "587"
+      MAIL_USERNAME        = "resend"
+      MAIL_PASSWORD        = var.resend_smtp_key
+      MAIL_FROM            = var.mail_from
       PAYPAL_CLIENT_ID     = var.paypal_client_id
       PAYPAL_CLIENT_SECRET = var.paypal_client_secret
       PAYPAL_API_BASE      = var.paypal_api_base
