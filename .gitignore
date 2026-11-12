@@ -22,7 +22,10 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
-# Entorno local
+# Entorno local (tokens y secretos): nunca se versiona; solo el ejemplo.
 .env
+.env.*
+!.env.example
+!.env.local.example
 .terraformrc
 terraform.rc
