@@ -5,8 +5,11 @@
 # dominio, y Account → Workers R2 Storage → Edit para el bucket de ficheros.
 provider "cloudflare" {}
 
-# VERCEL_API_TOKEN, con el alcance de la cuenta personal.
-provider "vercel" {}
+# VERCEL_API_TOKEN, con el alcance de la cuenta personal. El equipo (team_…) es el de la cuenta: sin él, el
+# provider guarda los proyectos sin equipo y luego no los reconoce al leerlos.
+provider "vercel" {
+  team = var.vercel_team_id
+}
 
 # NEON_API_KEY.
 provider "neon" {}

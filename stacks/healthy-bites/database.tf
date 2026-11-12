@@ -5,6 +5,8 @@ resource "neon_project" "healthy_bites" {
   region_id  = "aws-us-east-1"
   pg_version = 17
   org_id     = var.neon_org_id != "" ? var.neon_org_id : null
+  # El plan gratuito de Neon permite como mucho 6 horas de historial (restaurar a un punto en el tiempo).
+  history_retention_seconds = 21600
 
   branch {
     name          = "main"

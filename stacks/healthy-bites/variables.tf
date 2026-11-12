@@ -47,6 +47,11 @@ variable "cloudflare_account_id" {
   type        = string
 }
 
+variable "vercel_team_id" {
+  description = "Equipo de Vercel de la cuenta (TF_VAR_vercel_team_id). No es un secreto."
+  type        = string
+}
+
 variable "neon_org_id" {
   description = "Organización de Neon, si la cuenta pertenece a una (TF_VAR_neon_org_id). Vacío: la personal."
   type        = string
@@ -77,11 +82,6 @@ variable "resend_smtp_key" {
   description = "API key de Resend solo para envío, limitada al dominio: es la contraseña SMTP de la API."
   type        = string
   sensitive   = true
-}
-
-variable "resend_dkim" {
-  description = "Valor del registro DKIM (resend._domainkey) que da Resend al añadir el dominio. Es una clave pública."
-  type        = string
 }
 
 variable "mail_from" {
