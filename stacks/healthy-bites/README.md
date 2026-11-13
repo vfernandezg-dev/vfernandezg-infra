@@ -13,7 +13,7 @@ la base de datos, los ficheros y el correo saliente.
 | Correo saliente | Resend, desde `projects@vfernandezg.dev` | DKIM, SPF, MX de rebotes y dominio de seguimiento ([`mail.tf`](mail.tf)) |
 | DNS | Cloudflare, zona `vfernandezg.dev` | CNAME de `app-healthybites` y `api-healthybites` hacia Vercel ([`dns.tf`](dns.tf)) |
 | Protección | Firewall de Vercel | API: solo rutas `/api/v1/` y 300 peticiones/min por IP; app: 600/min por IP. Se rechazan en el borde, sin ejecutar la función ([`protection.tf`](protection.tf)) |
-| Instancia caliente | Cloudflare Worker `healthy-bites-api-keep-warm` | Cron cada 4 min a `/actuator/health/liveness` (Vercel apaga la instancia a los 5 sin tráfico; la sonda no despierta a Neon) ([`protection.tf`](protection.tf), [`workers/keep-warm.mjs`](workers/keep-warm.mjs)) |
+| Instancia caliente | Cloudflare Worker `healthy-bites-api-keep-warm` | Cron cada 4 min a `/actuator/health/liveness` (Vercel apaga la instancia a los 5 sin tráfico; la sonda no despierta a Neon). Sin ruta pública en workers.dev. Requisito: la cuenta necesita su subdominio workers.dev ([`protection.tf`](protection.tf), [`workers/keep-warm.mjs`](workers/keep-warm.mjs)) |
 
 Terraform gestiona la configuración. Los despliegues del código los hace la CLI de Vercel (ver abajo).
 

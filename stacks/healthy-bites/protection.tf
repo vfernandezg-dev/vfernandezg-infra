@@ -98,3 +98,12 @@ resource "cloudflare_workers_cron_trigger" "api_keep_warm" {
   script_name = cloudflare_workers_script.api_keep_warm.script_name
   schedules   = [{ cron = "*/4 * * * *" }]
 }
+
+# El Worker solo se ejecuta por cron: sin ruta pública en workers.dev ni previsualizaciones. Los cron exigen que la
+# cuenta tenga un subdominio workers.dev (se crea una vez, al abrir «Workers & Pages» en el panel de Cloudflare).
+resource "cloudflare_workers_script_subdomain" "api_keep_warm" {
+  account_id       = var.cloudflare_account_id
+  script_name      = cloudflare_workers_script.api_keep_warm.script_name
+  enabled          = false
+  previews_enabled = false
+}
