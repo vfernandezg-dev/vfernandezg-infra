@@ -26,6 +26,5 @@ override.tf.json
 .env
 .env.*
 !.env.example
-!.env.local.example
 .terraformrc
 terraform.rc
