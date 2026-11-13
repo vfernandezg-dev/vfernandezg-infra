@@ -25,19 +25,12 @@ resource "cloudflare_r2_bucket_cors" "media" {
 
 # Ciclo de vida: las subidas directas esperan con el prefijo «pending-» hasta que la API las confirma; las que nadie
 # confirma se borran al día. Se mantiene la regla por defecto de R2 para las subidas multiparte a medias.
+# Las reglas van en el orden en que las devuelve Cloudflare (la regla por defecto primero).
 resource "cloudflare_r2_bucket_lifecycle" "media" {
   account_id  = var.cloudflare_account_id
   bucket_name = cloudflare_r2_bucket.media.name
 
   rules = [
-    {
-      id         = "subidas-sin-confirmar"
-      enabled    = true
-      conditions = { prefix = "pending-" }
-      delete_objects_transition = {
-        condition = { type = "Age", max_age = 86400 }
-      }
-    },
     {
       id         = "Default Multipart Abort Rule"
       enabled    = true
@@ -46,5 +39,20 @@ resource "cloudflare_r2_bucket_lifecycle" "media" {
         condition = { type = "Age", max_age = 604800 }
       }
     },
+    {
+      id         = "subidas-sin-confirmar"
+      enabled    = true
+      conditions = { prefix = "pending-" }
+      delete_objects_transition = {
+        condition = { type = "Age", max_age = 86400 }
+      }
+    },
   ]
+
+  # El proveedor (5.29) lee cada regla con la transición que no tiene como un objeto vacío y cada plan propondría
+  # «quitarlo». Las reglas reales son exactamente estas (GET .../r2/buckets/<bucket>/lifecycle). Para cambiarlas:
+  # terraform plan -replace=cloudflare_r2_bucket_lifecycle.media -out stack.tfplan (sustituye todas las reglas).
+  lifecycle {
+    ignore_changes = [rules]
+  }
 }
