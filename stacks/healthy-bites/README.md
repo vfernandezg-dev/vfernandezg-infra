@@ -56,7 +56,7 @@ carpeta `.vercel` de `vercel link`, así que no queda nada en los repositorios. 
 construye el `Dockerfile` y lo ejecuta como función.
 
 ```powershell
-git -C <ruta de healthy-bites-api> archive --format=tar -o $env:TEMP\api.tar main
+git -C <ruta de healthybites-backend> archive --format=tar -o $env:TEMP\api.tar main
 New-Item -ItemType Directory -Force $env:TEMP\api-deploy | Out-Null
 tar -xf $env:TEMP\api.tar -C $env:TEMP\api-deploy
 Set-Location $env:TEMP\api-deploy
@@ -71,7 +71,7 @@ La primera petición tras el despliegue arranca la API, y Flyway aplica las migr
 variable `sensitive` en Vercel y `vercel pull` no la devuelve, así que se toma de `.env`.
 
 ```powershell
-# En una copia limpia de main de healthy-web-app, con las dependencias instaladas (pnpm install --frozen-lockfile)
+# En una copia limpia de main de healthybites-frontend, con las dependencias instaladas (pnpm install --frozen-lockfile)
 $env:VERCEL_ORG_ID = $env:VERCEL_TEAM_ID
 $env:VERCEL_PROJECT_ID = terraform -chdir=<ruta de la stack> output -raw vercel_app_project_id
 pnpm dlx vercel pull --yes --environment=production --token $env:VERCEL_API_TOKEN
