@@ -2,7 +2,9 @@
 
 [![Terraform](https://github.com/vfernandezg-dev/vfernandezg-infra/actions/workflows/terraform.yml/badge.svg)](https://github.com/vfernandezg-dev/vfernandezg-infra/actions/workflows/terraform.yml)
 ![Terraform](https://img.shields.io/badge/Terraform-1.15-844FBA?logo=terraform&logoColor=white)
-![Cloudflare](https://img.shields.io/badge/Cloudflare-DNS-F38020?logo=cloudflare&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-DNS%20%C2%B7%20R2-F38020?logo=cloudflare&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-hosting-000000?logo=vercel&logoColor=white)
+![Neon](https://img.shields.io/badge/Neon-PostgreSQL%2018-00E599?logo=postgresql&logoColor=white)
 
 Infraestructura como código de **vfernandezg.dev** y de los proyectos de mi portafolio, con Terraform.
 
@@ -25,29 +27,31 @@ Infraestructura como código de **vfernandezg.dev** y de los proyectos de mi por
 ├── modules/
 │   └── dns-site/          # Sitio en un subdominio: CNAME hacia su hosting
 └── stacks/
-    └── healthy-bites/     # Healthy Bites: landing (y luego app, API, Vercel y Neon)
+    └── healthy-bites/     # Healthy Bites: landing, app y API en Vercel, Neon, R2 y Resend
 ```
 
 ## Stacks
 
-| Stack                                     | Gestiona                                                           |
-| ----------------------------------------- | ------------------------------------------------------------------ |
-| [`healthy-bites`](stacks/healthy-bites)   | `healthybites.vfernandezg.dev` → GitHub Pages (landing, DNS only)  |
+| Stack                                   | Gestiona                                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [`healthy-bites`](stacks/healthy-bites) | Landing (GitHub Pages), app y API (Vercel), PostgreSQL (Neon), ficheros (R2), correo (Resend) |
 
 ## Uso
 
 Requisitos: [Terraform](https://developer.hashicorp.com/terraform/install) 1.9 o superior (el CI usa
-1.15.8) y un token de API de Cloudflare limitado a la zona `vfernandezg.dev`, con
-`Zone → Zone → Read` y `Zone → DNS → Edit`.
+1.15.8) y las credenciales de cada proveedor en `.env` (ignorado por git). [`.env.example`](.env.example)
+explica cómo crear cada token con el mínimo de permisos.
 
-```bash
-cd stacks/healthy-bites
-export CLOUDFLARE_API_TOKEN="…"   # PowerShell: $env:CLOUDFLARE_API_TOKEN = "…"
+```powershell
+. .\scripts\load-env.ps1          # bash: source scripts/load-env.sh
+cd stacks\healthy-bites
 
 terraform init
-terraform plan     # revisa los cambios
-terraform apply    # los aplica tras confirmar
+terraform plan -out stack.tfplan   # revisa los cambios
+terraform apply stack.tfplan       # aplica exactamente lo revisado
 ```
+
+Cada stack documenta en su README lo que gestiona y cómo se despliega su código.
 
 Si un recurso ya existe en Cloudflare, se adopta sin recrearlo con `terraform import`. Por ejemplo:
 `terraform import module.landing.cloudflare_dns_record.this <zone_id>/<record_id>`.
@@ -77,7 +81,4 @@ credenciales ni aplica cambios.
 
 - Stack `domain`: DNSSEC, Email Routing y registros raíz y `www` del portafolio.
 - Stack `portfolio`: el sitio de `vfernandezg.dev`.
-- `healthy-bites`: registros `app.healthybites` y `api.healthybites`, proyectos de Vercel
-  ([`vercel/vercel`](https://registry.terraform.io/providers/vercel/vercel)) y base de datos en Neon
-  (provider comunitario [`kislerdm/neon`](https://registry.terraform.io/providers/kislerdm/neon)).
 - Backend remoto para el _state_ y `plan`/`apply` desde GitHub Actions.
