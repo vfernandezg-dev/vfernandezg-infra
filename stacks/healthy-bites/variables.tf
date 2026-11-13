@@ -103,9 +103,14 @@ variable "paypal_client_secret" {
 }
 
 variable "paypal_api_base" {
-  description = "API de PayPal: sandbox hasta que haya cobros reales."
+  description = "API de PayPal. Solo el entorno de pruebas: Healthy Bites es un proyecto académico y sus políticas dicen que nunca se cobra dinero real."
   type        = string
   default     = "https://api-m.sandbox.paypal.com"
+
+  validation {
+    condition     = var.paypal_api_base == "https://api-m.sandbox.paypal.com"
+    error_message = "Healthy Bites solo usa el sandbox de PayPal (no hay cobros reales). Cambiarlo exige revisar antes /privacidad y /seguridad."
+  }
 }
 
 variable "contact_recipient" {

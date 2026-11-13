@@ -86,8 +86,22 @@ resource "cloudflare_workers_script" "api_keep_warm" {
     text = "${local.api_url}/api/v1/actuator/health/liveness"
   }]
 
+  # Registros de las ejecuciones (para ver si el ping falla). Se declaran los valores por defecto de Cloudflare: sin
+  # ellos, cada plan propone borrarlos.
   observability = {
-    enabled = true
+    enabled            = true
+    head_sampling_rate = 1
+    logs = {
+      enabled            = true
+      head_sampling_rate = 1
+      invocation_logs    = true
+      persist            = true
+    }
+    traces = {
+      enabled            = false
+      head_sampling_rate = 1
+      persist            = true
+    }
   }
 }
 
