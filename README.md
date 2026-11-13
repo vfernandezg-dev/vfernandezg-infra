@@ -79,6 +79,7 @@ credenciales ni aplica cambios.
 
 ## Próximos pasos
 
-- Stack `domain`: DNSSEC, Email Routing y registros raíz y `www` del portafolio.
+- Stack [`domain`](stacks/domain): ya verifica el dominio en GitHub Pages; faltan DNSSEC, Email Routing y los
+  registros raíz y `www` del portafolio.
 - Stack `portfolio`: el sitio de `vfernandezg.dev`.
 - Backend remoto para el _state_ y `plan`/`apply` desde GitHub Actions.
