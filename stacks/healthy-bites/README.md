@@ -84,7 +84,9 @@ pnpm dlx vercel deploy --prebuilt --prod --token $env:VERCEL_API_TOKEN
 
 ## Límites conocidos (plan gratuito)
 
-- **Peticiones de 4,5 MB como máximo** en las funciones de Vercel: las subidas más grandes fallan.
+- **Peticiones de 4,5 MB como máximo** en las funciones de Vercel. Los ficheros no pasan por ahí: la app los sube
+  directos a R2 con una URL prefirmada (`POST /media/uploads`), y la API los comprueba y registra al confirmarlos.
+  Las subidas sin confirmar (prefijo `pending-`) se borran al día.
 - **Arranque en frío** de unos 7-8 s en Vercel (caché AOT de Java 25, ver el ADR 0011 de la API); con muchas
   instancias arrancando a la vez, hasta 15 s. El Worker de instancia caliente evita casi todos: quedan tras un
   despliegue o si una ráfaga obliga a levantar instancias nuevas.
