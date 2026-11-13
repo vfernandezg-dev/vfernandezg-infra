@@ -1,8 +1,8 @@
-# Protección de la aplicación y de la API.
+# Protección y disponibilidad de la aplicación y de la API.
 #
-# Firewall de Vercel (plan Hobby: hasta 3 reglas por proyecto, 1 de límite de peticiones). Lo que se rechaza aquí no
-# llega a ejecutar la función: no consume invocaciones, CPU ni conexiones de la base de datos. La instancia caliente
-# de la API la mantiene un workflow programado (.github/workflows/healthy-bites-keep-warm.yml).
+# - Firewall de Vercel (plan Hobby: hasta 3 reglas por proyecto, 1 de límite de peticiones). Lo que se rechaza aquí
+#   no llega a ejecutar la función: no consume invocaciones, CPU ni conexiones de la base de datos.
+# - Un Cloudflare Worker que mantiene caliente una instancia de la API (ADR 0011 de la API).
 
 locals {
   # Peticiones por minuto y por IP antes de responder 429. Un uso normal hace unas pocas decenas.
@@ -68,4 +68,33 @@ resource "vercel_firewall_config" "app" {
       }
     }
   }
+}
+
+# ---------------------------------------------------------------- instancia caliente
+
+resource "cloudflare_workers_script" "api_keep_warm" {
+  account_id         = var.cloudflare_account_id
+  script_name        = "healthy-bites-api-keep-warm"
+  content_file       = "${path.module}/workers/keep-warm.mjs"
+  content_sha256     = filesha256("${path.module}/workers/keep-warm.mjs")
+  main_module        = "keep-warm.mjs"
+  compatibility_date = "2026-11-01"
+
+  bindings = [{
+    type = "plain_text"
+    name = "PING_URL"
+    text = "${local.api_url}/api/v1/actuator/health/liveness"
+  }]
+
+  observability = {
+    enabled = true
+  }
+}
+
+# Cada 4 minutos (Vercel apaga la instancia a los 5 sin tráfico). Los cron de Cloudflare son puntuales; los de
+# GitHub Actions, que se probaron antes, pueden tardar más de una hora en arrancar.
+resource "cloudflare_workers_cron_trigger" "api_keep_warm" {
+  account_id  = var.cloudflare_account_id
+  script_name = cloudflare_workers_script.api_keep_warm.script_name
+  schedules   = [{ cron = "*/4 * * * *" }]
 }
