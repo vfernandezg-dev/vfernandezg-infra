@@ -12,6 +12,8 @@ la base de datos, los ficheros y el correo saliente.
 | Ficheros subidos | Cloudflare R2, bucket privado `healthy-bites-media` | Bucket ([`storage.tf`](storage.tf)) |
 | Correo saliente | Resend, desde `projects@vfernandezg.dev` | DKIM, SPF, MX de rebotes y dominio de seguimiento ([`mail.tf`](mail.tf)) |
 | DNS | Cloudflare, zona `vfernandezg.dev` | CNAME de `app-healthybites` y `api-healthybites` hacia Vercel ([`dns.tf`](dns.tf)) |
+| Protección | Firewall de Vercel | API: solo rutas `/api/v1/` y 300 peticiones/min por IP; app: 600/min por IP. Se rechazan en el borde, sin ejecutar la función ([`protection.tf`](protection.tf)) |
+| Instancia caliente | Cloudflare Worker `healthy-bites-api-keep-warm` | Cron cada 4 min a `/actuator/health/liveness` (Vercel apaga la instancia a los 5 sin tráfico; no despierta a Neon) ([`protection.tf`](protection.tf), [`workers/keep-warm.mjs`](workers/keep-warm.mjs)) |
 
 Terraform gestiona la configuración. Los despliegues del código los hace la CLI de Vercel (ver abajo).
 
@@ -83,7 +85,8 @@ pnpm dlx vercel deploy --prebuilt --prod --token $env:VERCEL_API_TOKEN
 ## Límites conocidos (plan gratuito)
 
 - **Peticiones de 4,5 MB como máximo** en las funciones de Vercel: las subidas más grandes fallan.
-- **Arranque en frío** de unos 12 a 25 s en la primera petición tras unos minutos sin tráfico (JVM más Flyway).
+- **Arranque en frío** de unos 9 s con 1 vCPU (caché AOT de Java 25, ver el ADR 0011 de la API). El Worker
+  `healthy-bites-api-keep-warm` evita casi todos: solo quedan tras un despliegue o si el Worker falla.
 - **Tareas programadas** (`@Scheduled`) solo mientras hay una instancia activa. El acceso de pago sigue siendo
   correcto, porque se compara con la fecha actual en cada petición.
 - **Neon**: 6 horas de historial para restaurar a un punto en el tiempo.
